@@ -83,6 +83,22 @@ h1 {
   --processing: none;
 }
 
+input#card-name {
+  margin: 30px auto 0;
+  width: 80%;
+  height: 40px;
+  border-radius: 10px;
+  padding: 0 7px;
+  background: #eef8ff;
+  border: none;
+  font-size: 18px;
+}
+
+input#card-name:focus {
+  border-bottom: 3px solid var(--main-color);
+  box-shadow: inset 0 0 3px #008eff78;
+}
+
 main {
   width: 480px;
   margin-top: 20px;
@@ -133,7 +149,6 @@ ul {
 }
 
 ul#task-list {
-  counter-reset: task;
   margin-top: 0;
   width: 90%;
   background-color: rgba(255, 255, 255, 0.432);
@@ -143,7 +158,6 @@ ul#task-list {
 }
 
 li.task-list-item {
-  cursor: pointer;
   margin-bottom: 3px;
   border-bottom: 1px solid var(--sub-sub-color);
   border-radius: 10px;
@@ -153,26 +167,6 @@ li.task-list-item {
   line-height: 1;
   overflow: hidden;
   transition: all .3s;
-}
-
-li.task-list-item:hover {
-  background: #ff318e2a;
-}
-
-li.task-list-item span::before {
-  counter-increment: task;
-  content: counter(task);
-  color: var(--sub-sub-color);
-  background: var(--sub-color);
-  border-radius: 50%;
-  display: inline-grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  margin-right: 7px;
-  box-sizing: border-box;
-  font-weight: 700;
-  opacity: .6;
 }
 
 .task-list-item span {
