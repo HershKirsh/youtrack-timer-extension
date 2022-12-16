@@ -1,12 +1,11 @@
 const taskList = document.querySelector('#task-list');
 const container = document.querySelector('.container');
 const message = document.querySelector('.message');
+const cardNameInput = document.querySelector('#card-name');
 let youTrackURL;
 let taskCount = 0;
 
-chrome.storage.sync.get(['youTrackURL'], function (params) {
-  youTrackURL = params.youTrackURL;
-});
+chrome.storage.sync.get(['youTrackURL'], params => (youTrackURL = params.youTrackURL));
 
 document.querySelector('.logo').addEventListener('click', focusYouTrackTab);
 
@@ -61,17 +60,19 @@ function renderCardList(response) {
   container.style.setProperty('--processing', 'none');
 }
 
-document.querySelector('#card-name').addEventListener('keydown', e => {
-  console.log(e.target.value, e.key);
-  if (!e.target.value || e.key !== 'Enter') return;
-  runFunc(
-    createNewCard,
-    () => {
-      console.log('succes');
-    },
-    [e.target.value]
-  );
+cardNameInput.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || !e.target.value) return;
+  runFunc(createNewCard, createCardRes, [e.target.value]);
 });
+
+function createCardRes(res) {
+  console.log('res', res[0]);
+  console.log('res result', res[0].result);
+  if (res[0].result === 'success') {
+    cardNameInput.value = '';
+    message.innerText = 'Card created'
+  }
+}
 
 async function createNewCard(name) {
   function waitForElem(selector) {
@@ -93,35 +94,35 @@ async function createNewCard(name) {
   nameInput.value = name;
   nameInput.dispatchEvent(new CustomEvent('change'));
   document.querySelector('[data-test="save-issue"]').click();
+  return 'success';
 }
 
 chrome.tabs.query({}, function (tabs) {
   const youTrackTab = tabs.filter(tab => tab.url.includes('.myjetbrains.com/youtrack/agiles'));
   if (youTrackTab[0]) {
     runFunc(getInProgrssCards, renderCardList);
-  } else {
     container.style.setProperty('--processing', 'none');
-    if (youTrackURL) {
-      message.innerHTML = '<h3>Opening YouTrack tab now...</h3><div class="loading-count-down"><span></span></div>';
-      message.classList.add('active');
-      setTimeout(function () {
-        const currentTab = tabs.filter(tab => tab.active === true)[0];
-        const currentTabId = currentTab.id;
-        chrome.tabs.create({'url': youTrackURL, 'index': currentTabId + 1}, function (tab) {
-          setTimeout(function () {
-            chrome.tabs.update(currentTabId, {active: true});
-          }, 500);
-        });
-        // backgroundPage.openYouTrackTab(tabs.filter(tab => tab.active === true)[0], youTrackURL);
-      }, 1000);
-    } else {
-      message.innerHTML = '<h3>We did not find a YouTrack-Agile-Board tab</h3><p>You can add a URL at the <span id="open-options">extension options page</span> to open in the future if no YouTrack tab is present</p>';
-      message.classList.add('active');
-      document.querySelector('#open-options').addEventListener('click', () => {
-        chrome.runtime.openOptionsPage(() => {});
-      });
-    }
+    return;
   }
+  if (youTrackURL) {
+    message.innerHTML = '<h3>Opening YouTrack tab now...</h3><div class="loading-count-down"><span></span></div>';
+    message.classList.add('active');
+    setTimeout(function () {
+      const currentTab = tabs.filter(tab => tab.active === true)[0];
+      const currentTabId = currentTab.id;
+      chrome.tabs.create({'url': youTrackURL, 'index': currentTabId + 1}, function (tab) {
+        // setTimeout(function () {
+        //   chrome.tabs.update(currentTabId, {active: true});
+        // }, 500);
+      });
+    }, 1000);
+    return;
+  }
+  message.innerHTML = '<h3>We did not find a YouTrack-Agile-Board tab</h3><p>You can add a URL at the <span id="open-options">extension options page</span> to open in the future if no YouTrack tab is present</p>';
+  message.classList.add('active');
+  document.querySelector('#open-options').addEventListener('click', () => {
+    chrome.runtime.openOptionsPage(() => {});
+  });
 });
 
 // document.addEventListener('keydown', e => {

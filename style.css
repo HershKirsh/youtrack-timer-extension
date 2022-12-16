@@ -149,12 +149,12 @@ ul {
 }
 
 ul#task-list {
-  margin-top: 0;
+  margin: 0 auto;
   width: 90%;
   background-color: rgba(255, 255, 255, 0.432);
   box-shadow: 0 0 10px #00000061;
   overflow-y: auto;
-  max-height: 460px;
+  max-height: 390px;
 }
 
 li.task-list-item {
